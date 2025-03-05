@@ -13,28 +13,27 @@ export default function Game() {
   // setting it called setCurrentMove(bool). This property lives in the state
   // of this Game component. It's value won't change between calls to Game()
   // unless *we* change it — it will remember it's value from call to call.
-  // It's like a static local variable in C/C++.
-  // We use to this keep track of our current move and allow us to jump
-  // back in time to previous states.
+  // It's like a static local variable in C/C++. We use this keep track of
+  // our current move and allow us to jump back in time to previous states.
   const [currentMove, setCurrentMove] = useState(0);
-  
-  // Tracks who's playing next. X has even turns, O has odd turns.
+
+  // This is *not* stateful, but is re-calculated every time Game() is
+  // called. It tracks who's playing next. X has even turns, O has odd turns.
   const xIsNext = currentMove % 2 === 0;
 
   // This creates a stack of snapshots of the game board state. The game
-  // board state is just an array of 9 Player's, with each entry corresponding
+  // board state is just an array of 9 Players, with each entry corresponding
   // to a tile on the board and the current player that "owns" it.
   const [history, setHistory] = useState([Array<Player>(9).fill("")]);
 
-  // This is *not* stateful, but is re-calculated every time Game() is
-  // called. It contains the last item on the history stack. By default,
+  // This contains the last item on the history stack. By default,
   // that stack contains one empty item, so this starts off as a blank
   // game board.
   const currentState = history[currentMove];
 
-  // This gets invokved whenever a square gets clicked.
+  // This gets invoked whenever a square gets clicked.
   function handlePlay(nextSquares: Array<Player>): void {
-    // We take history up to our currentMove (which have changed due to a jump)
+    // We take history up to our currentMove (which may have changed due to a jump)
     // and append the next layout of the board.
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
@@ -42,13 +41,11 @@ export default function Game() {
     // This gets us the index of the end of the history stack. We use nextHistory
     // because history will not be immediately updated.
     setCurrentMove(nextHistory.length - 1);
-    //setXIsNext(!xIsNext); // A trick for alternating turns.
   }
 
   // This gets invoked by the buttons for rewinding the moves.
   function jumpTo(nextMove: number): void {
     setCurrentMove(nextMove); // Go to the move specified.
-    //setXIsNext(nextMove % 2 === 0); // X is evens, O's are odds.
   }
 
   // This helper creates a list of buttons corresponding to move history.
@@ -91,7 +88,7 @@ interface BoardParams {
 };
 
 
-// This is responsible for drawing the game board. It's parameters
+// This is responsible for drawing the game board. Its parameters
 // are of the type specified in the BoardParams interface above.
 // Note that our parameters are surrounded by {}. That's because
 // React is going to pass in a single JavaScript object containing
@@ -102,8 +99,6 @@ function Board({xIsNext, squares, numTurns, handlePlay}: BoardParams) {
   const playerLetter = xIsNext? "X": "O";
 
   // Status message we will display to players.
-  // const message: string = getMessage();
-  // function getMessage(winner?: Player): string {
   const message: string = ( () => {
     const winner = calculateWinner(squares);
     let result: string = "";
@@ -122,7 +117,7 @@ function Board({xIsNext, squares, numTurns, handlePlay}: BoardParams) {
     return result;
   })(); // This trick is an Immediately Invoked Function Expression — thanks Copilot!
 
-  // This runs whenever a square gets clicked on. It takes a number "i" as a
+  // This runs whenever a square gets clicked. It takes a number "i" as a
   // parameter, and returns nothing ("void").
   function handleClick(i: number): void  {
     const nextSquares = squares.slice(); // A trick for duplicating an array.
@@ -134,10 +129,9 @@ function Board({xIsNext, squares, numTurns, handlePlay}: BoardParams) {
       // nextSquares is a const reference. The constness here means that we can't
       // change what it points to. However, we can still change the *contents*
       // of what it points too. That's why we're able to index it with [i]
-      // and change the value.
+      // and change the corresponding value.
       nextSquares[i] = playerLetter;
-
-      //setSquares(nextSquares); // This won't take effect immediately...
+ 
       handlePlay(nextSquares);
     }
   } // handleClick()
